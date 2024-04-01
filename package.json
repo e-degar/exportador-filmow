@@ -1,0 +1,33 @@
+{
+	"name": "texugo-cinefilo",
+	"version": "1.0.0",
+	"description": "Exporta suas listas de filmes do Filmow.",
+	"main": "index.js",
+	"type": "module",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/oieusouoede/texugo-cinefilo.git"
+	},
+	"keywords": [
+		"webscraper",
+		"js",
+		"filmow"
+	],
+	"author": "Edgar Marinho",
+	"license": "GPL-3.0",
+	"bugs": {
+		"url": "https://github.com/oieusouoede/texugo-cinefilo/issues"
+	},
+	"homepage": "https://github.com/oieusouoede/texugo-cinefilo#readme",
+	"dependencies": {
+		"chalk": "^5.3.0",
+		"inquirer": "^9.2.17",
+		"press-any-key": "^0.1.1"
+	},
+	"devDependencies": {
+		"@types/inquirer": "^9.0.7"
+	}
+}
