@@ -1,6 +1,11 @@
 import pressAnyKey from "press-any-key";
 import inquirer from "inquirer";
 import * as log from "./log.js";
+import * as fs from "fs";
+import chalk from "chalk";
+import os from "os";
+import { validateIfUserExists } from "../clients/filmow.js";
+import { openSession } from "../auth/filmow.js";
 
 const prompt = inquirer.createPromptModule();
 
@@ -16,6 +21,10 @@ export async function getScraperParams() {
 	let session;
 	if (operation.mode == "authenticated") {
 		session = await tryToOpenSession();
+	}
+
+	if (!session.username) {
+		operation.mode = "non-authenthicated";
 	}
 
 	const options = await askOtherParams(operation.mode);
@@ -54,7 +63,11 @@ function askOtherParams(mode) {
 			name: "username",
 			message: "Qual o seu nome de usuário no Filmow?",
 			when: mode == "non-authenthicated",
-			//TODO: Implementar validação
+			validate: async (answer) => {
+				if (!(await validateIfUserExists(answer)))
+					return chalk.red("Usuário não encontrado.");
+				return true;
+			},
 		},
 		{
 			type: "checkbox",
@@ -75,7 +88,12 @@ function askOtherParams(mode) {
 			type: "input",
 			name: "path",
 			message: "Onde devo salvar as listas?",
-			//TODO: Implementar validação
+			default: os.homedir,
+			validate: (answer) => {
+				if (!fs.existsSync(answer))
+					return chalk.red("Essa pasta não existe oras");
+				return true;
+			},
 		},
 	]);
 }
@@ -84,12 +102,54 @@ async function tryToOpenSession() {
 	log.warn("Vou te redirecionar pra tela de login.");
 	await pressKeyToContinue();
 
-	//TODO: Implementar login manual
+	let credentials = await openSession();
 
-	return {
-		username: "teste",
-		session: "teste",
-	};
+	while (!credentials) {
+		credentials = await noCredentials();
+	}
+
+	return credentials;
+}
+
+async function noCredentials() {
+	return await prompt([
+		{
+			type: "list",
+			name: "option",
+			default: true,
+			message: "Não deu pra abrir uma sessão. O que você quer fazer?",
+			choices: [
+				{
+					name: "Tentar de novo",
+					value: "retry",
+				},
+				{
+					name: "Seguir sem autenticação",
+					value: "no-auth",
+				},
+				{
+					name: "Encerrar",
+					value: "exit",
+				},
+				{
+					name: "Imprimir um gato no terminal",
+					value: "cat",
+				},
+			],
+		},
+	]).then(async (answer) => {
+		switch (answer.option) {
+			case "retry":
+				await tryToOpenSession();
+			case "no-auth":
+				return true;
+			case "exit":
+				process.exit();
+			case "cat":
+				printCat();
+				return noCredentials();
+		}
+	});
 }
 
 function pressKeyToContinue() {
@@ -104,4 +164,14 @@ function pressKeyToContinue() {
 				log.error("Programa interrompido pelo usuário. Há braços e beijos.");
 			});
 	});
+}
+
+function printCat() {
+	// Best I could find
+	log.talk(`
+⠀ ／l、 miau?
+（ﾟ､ ｡７
+⠀ |, ~ヽ
+  じし_,)ノ
+	`);
 }
