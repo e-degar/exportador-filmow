@@ -16,21 +16,20 @@ export async function getScraperParams() {
 			"Autenticado      - Você precisa fazer login para abrir uma sessão. Consegue pegar a data em que o filme foi incluído.\n"
 	);
 
-	const operation = await askOperationMode();
+	const mode = await askOperationMode();
 
 	let session;
-	if (operation.mode == "authenticated") {
+	if (mode.authenticated) {
 		session = await tryToOpenSession();
+		if (!session.username) {
+			mode.authenticated = false;
+		}
 	}
 
-	if (!session.username) {
-		operation.mode = "non-authenthicated";
-	}
-
-	const options = await askOtherParams(operation.mode);
+	const options = await askOtherParams(mode);
 
 	return {
-		...operation,
+		...mode,
 		...session,
 		...options,
 	};
@@ -40,16 +39,16 @@ async function askOperationMode() {
 	return prompt([
 		{
 			type: "list",
-			name: "mode",
+			name: "authenticated",
 			message: "Escolha um modo de operação:",
 			choices: [
 				{
 					name: "Autenticado",
-					value: "authenticated",
+					value: true,
 				},
 				{
 					name: "Não-Autenticado",
-					value: "non-authenthicated",
+					value: false,
 				},
 			],
 		},
@@ -62,7 +61,7 @@ function askOtherParams(mode) {
 			type: "input",
 			name: "username",
 			message: "Qual o seu nome de usuário no Filmow?",
-			when: mode == "non-authenthicated",
+			when: !mode.authenticated,
 			validate: async (answer) => {
 				if (!(await validateIfUserExists(answer)))
 					return chalk.red("Usuário não encontrado.");
@@ -71,16 +70,16 @@ function askOtherParams(mode) {
 		},
 		{
 			type: "checkbox",
-			name: "option",
+			name: "options",
 			message: "Quais listas eu devo salvar?",
 			choices: [
 				{
 					name: "Já vi",
-					value: "seenlist",
+					value: "ja-vi",
 				},
 				{
 					name: "Quero ver",
-					value: "wishlist",
+					value: "quero-ver",
 				},
 			],
 		},
@@ -91,7 +90,7 @@ function askOtherParams(mode) {
 			default: os.homedir,
 			validate: (answer) => {
 				if (!fs.existsSync(answer))
-					return chalk.red("Essa pasta não existe oras");
+					return chalk.red("Essa pasta não existe ¯\\_(ツ)_/¯");
 				return true;
 			},
 		},
@@ -174,4 +173,29 @@ function printCat() {
 ⠀ |, ~ヽ
   じし_,)ノ
 	`);
+}
+
+export function printBadger() {
+	log.talk(
+		`
+		⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡠⠶⠔⠊⠉⠉⠐⠒⢒⣲⣶⣦⢤⠤⢠⣶⣿⣿⣿⣤⢠⣶⢤⠀⠀⠀⠀
+		⣀⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣴⠞⠉⠀⠀⠀⠀⠀⢀⣠⣤⣶⣦⣶⣬⣽⣓⣿⣀⣻⣿⣿⠛⣯⢁⡟⠿⢶⠟⣩
+		⠈⢿⣿⣷⡂⠀⠀⠀⢀⣴⣿⡿⠁⠀⠀⢀⣠⣤⣶⢛⣛⣫⣽⣿⣿⣿⣯⣿⣿⣿⣿⡤⠤⠤⠤⢤⡭⠥⠤⠔⠐⠁
+		⠀⠀⢿⣿⣧⢠⣶⣯⠻⣿⡟⠀⢀⣴⡾⠿⠿⣿⣿⣿⣿⠿⢿⣿⣿⠿⣿⣿⣿⣿⣿⣿⣶⠄⠀⠀⠀⠀⠀⠀⠀⠀
+		⠀⠀⢸⣿⣿⣟⣬⣁⡴⠋⠀⢰⣿⡿⠷⠇⠀⣸⣿⠿⠟⢋⢅⣀⠀⠀⠀⠀⠙⠛⠿⣿⣿⣆⡀⠀⢀⡠⠂⠀⠀⠀
+		⢀⡦⠞⠛⠙⠛⠦⣀⠀⠀⠀⠈⢙⣛⠓⠒⠻⡩⠴⣄⡴⠚⠭⡈⠫⡻⣷⣦⣄⠀⠀⠈⠛⢿⣆⠛⢅⠀⠀⠀⠀⠀
+		⣿⣿⣶⣶⣦⠀⠀⠈⠁⢀⡀⣪⡖⠁⠲⣤⠚⠁⠀⢸⠀⠀⠀⣿⠉⠉⢻⣿⣿⣷⡄⠀⠀⠀⢻⠇⠀⠁⠀⠀⠀⠀
+		⢿⣿⣿⢿⣁⣀⣀⣐⡼⢴⣾⡃⠀⠀⣸⣿⠀⠀⠀⡞⡇⠀⢀⠿⠀⠀⣾⣿⣿⣿⣿⣦⡀⠀⠈⣷⣀⡞⠹⢻⠀⣀
+		⣾⣿⣿⠀⠙⢄⡈⣿⡄⠀⣿⠑⣄⠀⣿⡟⠇⠀⡸⠁⣇⢀⡞⠀⡇⡼⣿⣿⣿⣿⣿⣿⣷⡀⠀⣿⠛⠛⠛⠛⠛⠛
+		⣿⣿⣿⠀⢀⡴⠋⡿⠋⣦⡇⠀⠸⣧⣿⠀⠘⣴⠁⠀⢺⡟⠀⠀⡟⠀⣿⣿⣿⣿⣿⣿⣿⣿⡀⢻⠀⠀⠀⠀⠀⠀
+		⣿⣿⡏⣀⡞⠀⢰⠁⠀⢿⢧⠀⠀⠹⣧⠀⠀⡇⠀⠀⡞⠀⠀⢰⠃⠀⡿⣹⣿⣿⣿⣿⣿⣿⣷⠘⡇⠀⠀⠀⠀⠀
+		⣿⣿⢸⠑⢓⣒⣋⡉⠉⠉⠉⠓⠒⠠⠼⣦⣠⢇⣀⠴⢥⣀⠤⢃⡤⠊⣠⣿⣿⣿⣿⣿⣿⣿⣿⣧⣧⠀⠀⠀⠀⠀
+		⣿⠃⠈⠉⠉⠁⢻⡀⠀⠀⠀⠀⠈⠉⠐⠢⢬⣉⠑⠒⠒⠒⠂⣉⣤⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣾⣷⣄⠀⠀⠀
+		⣷⣶⣦⣄⣀⣀⣸⣇⣀⣀⣀⣀⡀⠀⠀⠀⠀⠀⠉⠉⠉⠉⢡⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⠀⠀
+		⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⠉⠑⠒⠂⠤⣄⣠⣴⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠋⠀⠀
+		⠒⠒⠒⠂⠀⠀⠉⠉⠉⠀⠀⠀⠒⠒⠒⠢⠤⠤⠤⣀⡀⠈⠉⠙⠛⠿⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠉⠀⠀⠀⠀
+`
+	);
+
+	log.talk("Oi meu chapa");
 }
