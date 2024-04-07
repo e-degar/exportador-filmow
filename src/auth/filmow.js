@@ -35,6 +35,7 @@ async function grabSessionCookie() {
 			const browser = await puppeteer.launch({ headless: false });
 
 			const [page] = await browser.pages();
+			page.setDefaultNavigationTimeout(0);
 			await page.goto(`${BASE_URL}/login`);
 			await page.waitForNavigation();
 			const cookies = await page.cookies();
