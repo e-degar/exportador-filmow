@@ -60,7 +60,6 @@ async function exportFromList(startUrl, listName) {
 		let result = await getMoviesOnPage(currentPage);
 		moviesData = moviesData.concat(result.moviesOnPage);
 		currentPage = result.nextPage;
-		currentPage = undefined;
 	}
 	multibar.stop();
 	return moviesData;
