@@ -9,7 +9,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/oieusouoede/texugo-cinefilo.git"
+		"url": "git+https://github.com/e-degar/texugo-cinefilo.git"
 	},
 	"keywords": [
 		"webscraper",
@@ -19,18 +19,22 @@
 	"author": "Edgar Marinho",
 	"license": "GPL-3.0",
 	"bugs": {
-		"url": "https://github.com/oieusouoede/texugo-cinefilo/issues"
+		"url": "https://github.com/e-degar/texugo-cinefilo/issues"
 	},
-	"homepage": "https://github.com/oieusouoede/texugo-cinefilo#readme",
+	"homepage": "https://github.com/e-degar/texugo-cinefilo#readme",
 	"dependencies": {
 		"axios": "^1.6.8",
 		"chalk": "^5.3.0",
 		"cheerio": "^1.0.0-rc.12",
+		"cli-progress": "^3.12.0",
+		"csv-writer": "^1.6.0",
+		"date-fns": "^3.6.0",
 		"inquirer": "^9.2.17",
 		"press-any-key": "^0.1.1",
 		"puppeteer": "^22.6.2"
 	},
 	"devDependencies": {
+		"@types/cli-progress": "^3.11.5",
 		"@types/inquirer": "^9.0.7"
 	}
 }
