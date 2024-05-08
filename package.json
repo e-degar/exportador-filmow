@@ -3,9 +3,18 @@
 	"version": "1.0.0",
 	"description": "Exporta suas listas de filmes do Filmow.",
 	"main": "index.js",
+	"bin": "./src/index.js",
 	"type": "module",
 	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"bundle": "esbuild ./src/index.js --bundle --platform=node --format=cjs --outfile=dist/bundle.cjs --external:typescript",
+		"pkg-pre": "rm ./dist/*",
+		"nexe-linux": "nexe ./dist/bundle.cjs -o ./dist/exportador-filmow -t 'linux' --build --python=$(which python3)",
+		"nexe-windows": "nexe ./dist/bundle.cjs -o ./dist/exportador-filmow -t 'windows' --build --python=$(which python3)",
+		"pkg-post": "rm ./dist/*.cjs",
+		"pkg-build": "pkg --targets node18-win-x64,node18-linux-x64 -o ./dist/exportador-filmow ./dist/bundle.cjs",
+		"nexe-all": "npm run pkg-pre && npm run bundle && npm run pkg-linux && npm run pkg-windows && npm run pkg-post",
+		"pkg-all": "npm run pkg-pre && npm run bundle && npm run pkg-build && npm run pkg-post"
 	},
 	"repository": {
 		"type": "git",
@@ -35,6 +44,14 @@
 	},
 	"devDependencies": {
 		"@types/cli-progress": "^3.11.5",
-		"@types/inquirer": "^9.0.7"
+		"@types/inquirer": "^9.0.7",
+		"esbuild": "0.20.2"
+	},
+	"pkg": {
+		"outputPath": "dist",
+		"targets": [
+			"latest-linux-x64",
+			"latest-win-x64"
+		]
 	}
 }
