@@ -1,0 +1,57 @@
+{
+	"name": "exportador-filmow",
+	"version": "1.0.0",
+	"description": "Exporta suas listas de filmes do Filmow.",
+	"main": "index.js",
+	"bin": "./src/index.js",
+	"type": "module",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"bundle": "esbuild ./src/index.js --bundle --platform=node --format=cjs --outfile=dist/bundle.cjs --external:typescript",
+		"pkg-pre": "rm ./dist/*",
+		"nexe-linux": "nexe ./dist/bundle.cjs -o ./dist/exportador-filmow -t 'linux' --build --python=$(which python3)",
+		"nexe-windows": "nexe ./dist/bundle.cjs -o ./dist/exportador-filmow -t 'windows' --build --python=$(which python3)",
+		"pkg-post": "rm ./dist/*.cjs",
+		"pkg-build": "pkg --targets node18-win-x64,node18-linux-x64 -o ./dist/exportador-filmow ./dist/bundle.cjs",
+		"nexe-all": "npm run pkg-pre && npm run bundle && npm run pkg-linux && npm run pkg-windows && npm run pkg-post",
+		"pkg-all": "npm run pkg-pre && npm run bundle && npm run pkg-build && npm run pkg-post"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/e-degar/exportador-filmow.git"
+	},
+	"keywords": [
+		"webscraper",
+		"js",
+		"filmow"
+	],
+	"author": "Edgar Marinho",
+	"license": "GPL-3.0",
+	"bugs": {
+		"url": "https://github.com/e-degar/exportador-filmow/issues"
+	},
+	"homepage": "https://github.com/e-degar/exportador-filmow#readme",
+	"dependencies": {
+		"axios": "^1.6.8",
+		"chalk": "^5.3.0",
+		"cheerio": "^1.0.0-rc.12",
+		"cli-progress": "^3.12.0",
+		"csv-writer": "^1.6.0",
+		"date-fns": "^3.6.0",
+		"inquirer": "^9.2.17",
+		"press-any-key": "^0.1.1",
+		"puppeteer": "^22.6.2"
+	},
+	"devDependencies": {
+		"@types/cli-progress": "^3.11.5",
+		"@types/inquirer": "^9.0.7",
+		"esbuild": "0.20.2"
+	},
+	"pkg": {
+		"outputPath": "dist",
+		"targets": [
+			"latest-linux-x64",
+			"latest-win-x64"
+		]
+	}
+}
